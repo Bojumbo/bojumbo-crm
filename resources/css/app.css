@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+    /* Notion Colors (Dark Mode Default) */
+    --color-canvas: #191919;
+    --color-card: #202020;
+    --color-notion-blue: #2383E2;
+
+    /* Text Overlays */
+    --color-notion-text-primary: rgba(255, 255, 255, 0.9);
+    --color-notion-text-secondary: rgba(255, 255, 255, 0.45);
+    --color-notion-text-mono: rgba(255, 255, 255, 0.4);
+
+    /* Border & Hover */
+    --color-notion-border: rgba(255, 255, 255, 0.09);
+    --color-notion-hover: rgba(255, 255, 255, 0.05);
+
+    /* Radius */
+    --radius-notion: 4px;
+
+    /* Fonts */
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+@layer base {
+    html {
+        -webkit-tap-highlight-color: transparent;
+        color-scheme: dark;
+    }
+
+    body {
+        @apply bg-canvas text-notion-text-primary font-sans antialiased;
+        font-size: 14px;
+        /* Notion standard */
+    }
+
+    select,
+    option,
+    optgroup {
+        background-color: var(--color-card);
+        color: var(--color-notion-text-primary);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+}
+
+@layer components {
+    .notion-table {
+        @apply w-full border-collapse;
+    }
+
+    .notion-table th {
+        @apply text-notion-text-secondary text-xs uppercase tracking-wider text-left px-3 py-2 border-b border-notion-border font-medium;
+    }
+
+    .notion-table td {
+        @apply px-3 py-2 border-b border-notion-border;
+    }
+
+    .notion-sidebar {
+        @apply bg-card border-e border-notion-border h-full;
+    }
+
+    .notion-input {
+        @apply bg-transparent border-none outline-none focus:ring-1 focus:ring-notion-blue/50 rounded-notion px-2 py-1 transition-all;
+    }
+}
