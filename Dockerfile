@@ -34,7 +34,7 @@ COPY . .
 COPY nginx.conf /etc/nginx/sites-available/default
 
 # Install dependencies and build assets
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --optimize-autoloader
 RUN npm install && npm run build
 
 # Setup permissions
