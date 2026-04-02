@@ -29,6 +29,9 @@ WORKDIR /var/www/html
 # Copy project
 COPY . .
 
+# Copy Nginx config
+COPY nginx.conf /etc/nginx/sites-available/default
+
 # Install dependencies and build assets
 RUN composer install --no-dev --optimize-autoloader
 RUN npm install && npm run build
