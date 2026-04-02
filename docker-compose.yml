@@ -20,6 +20,13 @@ services:
       - CACHE_STORE=redis
       - QUEUE_CONNECTION=redis
       - REDIS_HOST=redis
+      - APP_KEY=${APP_KEY}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+      - APP_URL=${APP_URL:-https://crm.bojumbohost.pp.ua}
+      - FORCE_HTTPS=${FORCE_HTTPS:-true}
+      - SESSION_DOMAIN=${SESSION_DOMAIN:-.bojumbohost.pp.ua}
     volumes:
       - storage_data:/var/www/html/storage
 
@@ -55,6 +62,13 @@ services:
       - CACHE_STORE=redis
       - QUEUE_CONNECTION=redis
       - REDIS_HOST=redis
+      - APP_KEY=${APP_KEY}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+      - APP_URL=${APP_URL:-https://crm.bojumbohost.pp.ua}
+      - FORCE_HTTPS=${FORCE_HTTPS:-true}
+      - SESSION_DOMAIN=${SESSION_DOMAIN:-.bojumbohost.pp.ua}
     depends_on:
       - db
       - redis
