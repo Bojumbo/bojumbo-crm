@@ -22,14 +22,13 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $product = Product::create();
-        $this->saveFields($product, $request->input('fields', []));
+        $product->saveDynamicFields($request->input('fields', []));
         return redirect()->route('products.index');
     }
 
     public function update(Request $request, Product $product)
     {
-        $product->fieldValues()->delete();
-        $this->saveFields($product, $request->input('fields', []));
+        $product->saveDynamicFields($request->input('fields', []));
         return redirect()->route('products.index');
     }
 
@@ -42,7 +41,7 @@ class ProductController extends Controller
     public function quickStore(Request $request)
     {
         $product = Product::create();
-        $this->saveFields($product, $request->input('fields', []));
+        $product->saveDynamicFields($request->input('fields', []));
         
         // Перезавантажуємо зв'язки, щоб getFieldValue спрацював
         $product->load('fieldValues');
@@ -56,15 +55,4 @@ class ProductController extends Controller
         ]);
     }
 
-    protected function saveFields(Product $product, array $fields)
-    {
-        foreach ($fields as $staticId => $value) {
-            if ($value !== null) {
-                $product->fieldValues()->create([
-                    'static_id' => $staticId,
-                    'value' => is_array($value) ? json_encode($value) : $value,
-                ]);
-            }
-        }
-    }
 }

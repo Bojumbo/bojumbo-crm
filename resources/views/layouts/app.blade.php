@@ -133,7 +133,7 @@
 
             <!-- Page Content -->
             <div class="flex-1 overflow-y-auto preview-scrollbar">
-                <div class="max-w-[1200px] mx-auto px-12 py-12 lg:px-24 relative">
+                <div class="max-w-[95%] mx-auto px-4 py-8 lg:px-8 relative">
                     @if(session('automation_success'))
                         <div x-data="{ show: true }" 
                              x-show="show" 

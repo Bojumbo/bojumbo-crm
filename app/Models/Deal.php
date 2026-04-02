@@ -1,12 +1,16 @@
 <?php
+
 namespace App\Models;
+
+use App\Traits\HasDynamicFields;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Deal extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasDynamicFields;
     protected $fillable = [
         'google_drive_folder_id',
     ];
@@ -20,8 +24,5 @@ class Deal extends Model
                     ->withPivot(['quantity', 'price_at_sale'])
                     ->withTimestamps();
     }
-    public function getFieldValue(int $staticId)
-    {
-        return $this->fieldValues->where('static_id', $staticId)->first()?->value;
-    }
+    // getFieldValue now handled by trait
 }

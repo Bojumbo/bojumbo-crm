@@ -38,7 +38,7 @@
     <!-- Kanban Board -->
     <div class="flex-1 flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
         @foreach($currentPipeline->stages as $stage)
-            <div class="flex-shrink-0 w-80 flex flex-col bg-white/[0.02] rounded-xl border border-notion-border/50">
+            <div class="flex-shrink-0 w-[214px] flex flex-col bg-white/[0.02] rounded-xl border border-notion-border/50">
                 <div class="p-3 flex items-center justify-between border-b border-notion-border/30">
                     <div class="flex items-center gap-2">
                         <span class="text-xs font-bold uppercase tracking-wider text-notion-text-secondary">{{ $stage->name }}</span>
@@ -712,7 +712,7 @@ function dealBoard() {
             this.newComment = '';
             this.open = true;
         },
-        addProductRow() {
+        addProduct() {
             this.dealProducts.push({ id: null, qty: 1, price: 0, search: '' });
         },
         removeProduct(index) { this.dealProducts.splice(index, 1); },

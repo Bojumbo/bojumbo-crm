@@ -25,7 +25,7 @@ class CounterpartyController extends Controller
             'type' => $request->input('fields.1004') ?? 'individual',
         ]);
 
-        $this->saveFields($counterparty, $request->input('fields', []));
+        $counterparty->saveDynamicFields($request->input('fields', []));
 
         return redirect()->route('counterparties.index');
     }
@@ -36,9 +36,8 @@ class CounterpartyController extends Controller
             'type' => $request->input('fields.1004') ?? $counterparty->type,
         ]);
 
-        // Оновлюємо динамічні поля: видаляємо старі та пишемо нові
-        $counterparty->fieldValues()->delete();
-        $this->saveFields($counterparty, $request->input('fields', []));
+        // Оновлюємо динамічні поля: автоматично порівнюємо та оновлюємо лише змінені
+        $counterparty->saveDynamicFields($request->input('fields', []));
 
         return redirect()->route('counterparties.index');
     }
@@ -55,7 +54,7 @@ class CounterpartyController extends Controller
             'type' => 'individual',
         ]);
 
-        $this->saveFields($counterparty, $request->input('fields', []));
+        $counterparty->saveDynamicFields($request->input('fields', []));
 
         return response()->json([
             'success' => true,
@@ -64,19 +63,4 @@ class CounterpartyController extends Controller
         ]);
     }
 
-    /**
-     * Внутрішній метод для збереження динамічних полів
-     */
-    protected function saveFields(Counterparty $counterparty, array $fields)
-    {
-        foreach ($fields as $staticId => $value) {
-            if ($value !== null) {
-                $finalValue = is_array($value) ? json_encode($value) : $value;
-                $counterparty->fieldValues()->create([
-                    'static_id' => $staticId,
-                    'value' => $finalValue,
-                ]);
-            }
-        }
-    }
 }

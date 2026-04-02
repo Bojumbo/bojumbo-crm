@@ -21,8 +21,8 @@ class DealController extends Controller
         $columns = FieldMetadata::where('entity', 'deal')
             ->orderBy('static_id')
             ->get();
-        $deals = Deal::with(['fieldValues', 'products'])->latest()->get();
-        $counterparties = Counterparty::all();
+        $deals = Deal::with(['fieldValues', 'products.fieldValues', 'products'])->latest()->get();
+        $counterparties = Counterparty::with('fieldValues')->get();
         $allProducts = Product::with('fieldValues')->get();
         $users = User::all();
         return view('deals.index', compact('deals', 'columns', 'counterparties', 'pipelines', 'currentPipeline', 'allProducts', 'users'));
@@ -36,7 +36,7 @@ class DealController extends Controller
         \Illuminate\Support\Facades\Log::info("Deal move triggered. Deal ID: {$deal->id}, New Stage ID: {$newStageId}");
         
         if ($newStageId) {
-            $this->saveFields($deal, [2006 => $newStageId]);
+            $deal->saveDynamicFields([2006 => $newStageId]);
             $deal->load('fieldValues', 'products');
             \App\Services\AutomationService::handleStageChange($deal, $newStageId);
         }
@@ -47,7 +47,7 @@ class DealController extends Controller
         $deal = Deal::create();
         ActivityLogService::logAction($deal, 'created');
         
-        $this->saveFields($deal, $request->input('fields', []));
+        $deal->saveDynamicFields($request->input('fields', []));
         if ($request->has('products')) {
             $this->syncProducts($deal, $request->input('products', []));
         }
@@ -56,7 +56,7 @@ class DealController extends Controller
     }
     public function update(Request $request, Deal $deal)
     {
-        $this->saveFields($deal, $request->input('fields', []));
+        $deal->saveDynamicFields($request->input('fields', []));
         if ($request->has('products')) {
             $this->syncProducts($deal, $request->input('products', []));
         }
@@ -69,39 +69,33 @@ class DealController extends Controller
         $deal->delete();
         return redirect()->back();
     }
-    protected function saveFields(Deal $deal, array $fields)
-    {
-        foreach ($fields as $staticId => $newValue) {
-            $oldFieldValue = $deal->fieldValues()->where('static_id', $staticId)->first();
-            $oldValue = $oldFieldValue ? $oldFieldValue->value : null;
-            if ($newValue !== null && $newValue != $oldValue) {
-                // Логуємо зміну поля
-                ActivityLogService::logFieldChange($deal, (int)$staticId, $oldValue, $newValue);
-                
-                $deal->fieldValues()->updateOrCreate(
-                    ['static_id' => $staticId],
-                    ['value' => is_array($newValue) ? json_encode($newValue) : $newValue]
-                );
-            }
-        }
-    }
     protected function syncProducts(Deal $deal, array $products)
     {
         $syncData = [];
         $totalAmount = 0;
+        
         foreach ($products as $p) {
-            if (!empty($p['id'])) {
-                $syncData[$p['id']] = [
-                    'quantity' => $p['qty'] ?? 1,
-                    'price_at_sale' => $p['price'] ?? 0,
+            $productId = isset($p['id']) ? (int)$p['id'] : null;
+            
+            if ($productId) {
+                // Враховуємо можливі різні імена полів qty/quantity
+                $qty = (float)($p['qty'] ?? $p['quantity'] ?? 1);
+                $price = (float)($p['price'] ?? 0);
+                
+                $syncData[$productId] = [
+                    'quantity' => $qty,
+                    'price_at_sale' => $price,
                 ];
-                $totalAmount += ($p['qty'] ?? 1) * ($p['price'] ?? 0);
+                
+                $totalAmount += ($qty * $price);
             }
         }
+        
         $deal->products()->sync($syncData);
+        
         // Автоматично оновлюємо суму угоди (Static ID 2002)
         if ($totalAmount > 0) {
-            $this->saveFields($deal, [2002 => $totalAmount]);
+            $deal->saveDynamicFields([2002 => (string)$totalAmount]);
         }
     }
 }

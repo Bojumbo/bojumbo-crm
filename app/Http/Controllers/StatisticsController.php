@@ -40,7 +40,8 @@ class StatisticsController extends Controller
         $totalAmount = DB::table('deal_field_values')
             ->whereIn('deal_id', $dealIds)
             ->where('static_id', $AMOUNT_FIELD)
-            ->sum('value');
+            ->selectRaw('SUM(CAST(NULLIF(value, \'\') AS NUMERIC)) as aggregate')
+            ->value('aggregate') ?? 0;
 
         // Всі стадії для вибору Won/Lost
         $stages = PipelineStage::all();
@@ -115,7 +116,8 @@ class StatisticsController extends Controller
             $amount = DB::table('deal_field_values')
                 ->whereIn('deal_id', $clientDealIds)
                 ->where('static_id', $AMOUNT_FIELD)
-                ->sum('value');
+                ->selectRaw('SUM(CAST(NULLIF(value, \'\') AS NUMERIC)) as aggregate')
+                ->value('aggregate') ?? 0;
 
             $name = $client->fieldValues->where('static_id', 1001)->first()?->value ?? 'No Name';
 
