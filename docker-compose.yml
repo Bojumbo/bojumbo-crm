@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # 1. Основний додаток (PHP + Nginx)
+  app:
+    build: .
+    container_name: bojumbo_crm_app
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      - APP_ENV=production
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=bojumbocrm
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=${DB_PASSWORD:-2856023b}
+      - SESSION_DRIVER=redis
+      - CACHE_STORE=redis
+      - QUEUE_CONNECTION=redis
+      - REDIS_HOST=redis
+    volumes:
+      - storage_data:/var/www/html/storage
+
+  # 2. База даних PostgreSQL
+  db:
+    image: postgres:17
+    container_name: bojumbo_crm_db
+    restart: always
+    environment:
+      POSTGRES_DB: bojumbocrm
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-2856023b}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  # 3. Кеш та Черги (Redis)
+  redis:
+    image: redis:alpine
+    container_name: bojumbo_crm_redis
+    restart: always
+
+  # 4. Воркер для черг (обробляє автоматизації)
+  worker:
+    build: .
+    environment:
+      - APP_ENV=production
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=bojumbocrm
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=${DB_PASSWORD:-2856023b}
+      - SESSION_DRIVER=redis
+      - CACHE_STORE=redis
+      - QUEUE_CONNECTION=redis
+      - REDIS_HOST=redis
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - storage_data:/var/www/html/storage
+
+volumes:
+  pg_data:
+  storage_data:

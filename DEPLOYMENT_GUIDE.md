@@ -1,20 +1,22 @@
-# 🚀 Bojumbo CRM: Повна інструкція по розгортанню на сервері
+# 🚀 Bojumbo CRM: Автоматизоване розгортання (CI/CD)
 
-Цей документ допоможе тобі перенести проект з локального комп'ютера на власний сервер з Proxmox.
+Ця інструкція допоможе тобі налаштувати сервер так, щоб він **автоматично оновлювався** при кожному твоєму пуші (`push`) у GitHub.
 
-## 1. Підготовка Віртуальної Машини (Proxmox)
-1. **Створи VM:** Ubuntu Server 24.04 LTS.
-2. **Характеристики:** 2 Cores, 4GB RAM, 40GB Disk.
-3. **Встанови Docker:**
-   ```bash
-   curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh
-   ```
-4. **Встанови Portainer:**
-   ```bash
-   sudo docker run -d -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
-   ```
+---
 
-## 2. Docker-конфігурація проекту
+## 1. Підготовка сервера (Proxmox + Docker)
+Якщо ти ще не встановив Docker на свою Ubuntu VM у Proxmox:
+```bash
+# Встановити Docker
+curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh
+# Запустити Portainer
+sudo docker run -d -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+```
+
+---
+
+## 2. Докер-файли у твоєму проекті
+Переконайся, що у твоєму репозиторії GitHub є ці файли (вони потрібні Portainer для збірки):
 
 ### Dockerfile (створи в корені проекту)
 ```dockerfile
@@ -29,51 +31,41 @@ RUN npm install && npm run build
 RUN chown -R www-data:www-data storage bootstrap/cache
 ```
 
-### docker-compose.yml (використовуй у Portainer Stacks)
-```yaml
-version: '3.8'
-services:
-  app:
-    build: .
-    restart: always
-    environment:
-      - APP_ENV=production
-    ports:
-      - "8080:80"
-    volumes:
-      - .env:/var/www/html/.env
-      - storage:/var/www/html/storage
-  db:
-      image: postgres:18
-      restart: always
-      environment:
-        POSTGRES_DB: bojumbocrm
-        POSTGRES_PASSWORD: password123
-  redis:
-      image: redis:alpine
-      restart: always
-  worker:
-      build: .
-      command: php artisan queue:work
-      restart: always
-      depends_on: [redis, db]
-```
+---
 
-## 3. Cloudflare Tunnel
-1. Створи тунель у панелі Cloudflare Zero Trust.
-2. Встанови конектор на сервері через Docker.
-3. Налаштуй **Public Hostname**:
-   * **Domain:** твій-домен.com
-   * **Service:** `http://app:80` (внутрішня адреса в мережі Docker).
+## 3. Налаштування автоматизації в Portainer
+Тепер ми не будемо просто копіювати файли. Ми з'єднаємо Portainer безпосередньо з GitHub:
 
-## 4. Google OAuth (Критично)
-1. У Google Console онови **Redirect URI**: `https://твій-домен.com/google/callback`.
-2. У файлі `.env` на сервері обов'язково вкажи:
-   ```env
-   APP_URL=https://твій-домен.com
-   SESSION_SECURE_COOKIE=true
-   ```
-   Це дозволить Google працювати через захищене з'єднання Cloudflare.
+1. Зайди в Portainer -> **Stacks** -> **Add Stack**.
+2. Обери **Build Method**: `Repository`.
+3. Заповни дані:
+   * **Name:** `bojumbo-crm`
+   * **Repository URL:** `https://github.com/Bojumbo/bojumbo-crm`
+   * **Repository reference:** `refs/heads/main` (або твоя основна гілка).
+   * **Compose path:** `docker-compose.yml`
+4. **Увімкни Automatic Updates:**
+   * Встанови перемикач **Enabled**.
+   * Оберіть **Polling** (наприклад, кожні 5 хвилин).
+   * Тепер Portainer сам буде перевіряти GitHub і оновлювати CRM при змінах коду.
 
 ---
-**Також не забудь налаштувати Supervisor або Docker-воркери для черг, щоб автоматизації працювали у фоні.**
+
+## 4. Конфігурація середовища (Environment)
+У налаштуваннях Stack у Portainer додай змінні середовища (**Environment variables**), які раніше були в `.env`:
+* `DB_PASSWORD`: (твій пароль від Postgres у Docker)
+* `DB_CONNECTION`: `pgsql`
+* `APP_URL`: `https://твій-домен.com` (Cloudflare-адреса)
+* `FORCE_HTTPS`: `true`
+
+---
+
+## 5. Доступ через Cloudflare Tunnel
+1. Створи тунель у панелі Cloudflare Zero Trust.
+2. Встанови конектор на сервері.
+3. Налаштуй **Public Hostname**:
+   * **Domain:** `crm.твійдомен.com`
+   * **Service:** `http://bojumbo-crm_app:80` (ім'я сервісу з compose).
+
+---
+**Тепер твій робочий процес виглядає так:**
+**Пишеш код локально** -> **Робиш Git Push** -> **Portainer бачить оновлення** -> **CRM сама перезбирається на сервері**. 🚀
