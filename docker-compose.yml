@@ -27,6 +27,8 @@ services:
       - APP_URL=${APP_URL:-https://crm.bojumbohost.pp.ua}
       - FORCE_HTTPS=${FORCE_HTTPS:-true}
       - SESSION_DOMAIN=${SESSION_DOMAIN:-.bojumbohost.pp.ua}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
     volumes:
       - storage_data:/var/www/html/storage
 
@@ -71,6 +73,8 @@ services:
       - APP_URL=${APP_URL:-https://crm.bojumbohost.pp.ua}
       - FORCE_HTTPS=${FORCE_HTTPS:-true}
       - SESSION_DOMAIN=${SESSION_DOMAIN:-.bojumbohost.pp.ua}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
     depends_on:
       - db
       - redis
