@@ -18,6 +18,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (env('FORCE_HTTPS')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         if (!app()->runningInConsole() && Schema::hasTable('settings')) {
             View::share('currency', Setting::get('crm_currency', '₪'));
         } else {
