@@ -15,7 +15,7 @@
             <h1 class="text-2xl font-bold tracking-tight">{{ __('Deals Board') }}</h1>
             
             <div class="relative" x-data="{ dropdown: false }">
-                <button @click="dropdown = !dropdown" class="flex items-center gap-2 px-3 py-1 bg-white/5 border border-notion-border rounded-notion text-sm hover:bg-white/10 transition-colors">
+                <button @click="dropdown = !dropdown" class="flex items-center gap-2 px-3 py-1 bg-card border border-notion-border rounded-notion text-sm hover:bg-notion-hover transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-notion-blue"><path d="m9 18 6-6-6-6"/></svg>
                     <span>{{ $currentPipeline?->name ?? __('Select Pipeline') }}</span>
                 </button>
@@ -29,6 +29,20 @@
             </div>
         </div>
         <div class="flex items-center gap-3">
+            <!-- View Switcher -->
+            <div class="bg-card border border-notion-border rounded-notion p-1 flex gap-1 mr-2">
+                <button @click="viewMode = 'board'; localStorage.setItem('viewMode', 'board')" 
+                        :class="viewMode === 'board' ? 'bg-notion-blue text-white shadow-sm' : 'text-notion-text-secondary hover:bg-notion-hover'"
+                        class="p-1.5 rounded transition-all" title="Board View">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+                </button>
+                <button @click="viewMode = 'table'; localStorage.setItem('viewMode', 'table')" 
+                        :class="viewMode === 'table' ? 'bg-notion-blue text-white shadow-sm' : 'text-notion-text-secondary hover:bg-notion-hover'"
+                        class="p-1.5 rounded transition-all" title="Table View">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/><line x1="3" x2="3" y1="6" y2="18"/></svg>
+                </button>
+            </div>
+
             <button @click="resetForm()" class="bg-notion-blue text-white px-4 py-1.5 rounded-notion text-sm font-medium hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                 {{ __('New Deal') }}
@@ -36,17 +50,17 @@
         </div>
     </div>
     <!-- Kanban Board -->
-    <div class="flex-1 flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+    <div x-show="viewMode === 'board'" class="flex-1 flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
         @foreach($currentPipeline->stages as $stage)
-            <div class="flex-shrink-0 w-[214px] flex flex-col bg-white/[0.02] rounded-xl border border-notion-border/50">
-                <div class="p-3 flex items-center justify-between border-b border-notion-border/30">
+            <div class="flex-shrink-0 w-[214px] flex flex-col bg-notion-hover rounded-xl border border-notion-border/50">
+                <div class="p-3 flex items-center justify-between border-b border-notion-border/30 bg-card rounded-t-xl">
                     <div class="flex items-center gap-2">
                         <span class="text-xs font-bold uppercase tracking-wider text-notion-text-secondary">{{ $stage->name }}</span>
-                        <span class="bg-white/5 px-1.5 py-0.5 rounded text-[10px] text-notion-text-secondary">
+                        <span class="bg-notion-border px-1.5 py-0.5 rounded text-[10px] text-notion-text-secondary">
                             {{ $deals->filter(fn($d) => $d->getFieldValue(2006) == $stage->id)->count() }}
                         </span>
                     </div>
-                    <button @click="resetForm('{{ $stage->id }}')" class="p-1 hover:bg-white/5 rounded text-notion-text-secondary opacity-0 group-hover:opacity-100 transition-opacity">+</button>
+                    <button @click="resetForm('{{ $stage->id }}')" class="p-1 hover:bg-notion-hover rounded text-notion-text-secondary opacity-0 group-hover:opacity-100 transition-opacity">+</button>
                 </div>
                 <div id="stage-{{ $stage->id }}" data-stage-id="{{ $stage->id }}" class="flex-1 p-2 space-y-2 overflow-y-auto custom-scrollbar min-h-[100px]">
                     @foreach($deals->filter(fn($d) => $d->getFieldValue(2006) == $stage->id) as $deal)
@@ -58,28 +72,30 @@
                         @endphp
                         <div draggable="true" 
                              data-id="{{ $deal->id }}"
-                             @click="initRow({{ $deal->id }}, {{ json_encode($rowFields) }}, {{ $deal->products->map(fn($p) => ['id' => $p->id, 'pivot' => ['quantity' => $p->pivot->quantity, 'price_at_sale' => $p->pivot->price_at_sale]]) }})"
+                             @click="initRow({{ $deal->id }}, {{ $deal->products->map(fn($p) => ['id' => $p->id, 'pivot' => ['quantity' => $p->pivot->quantity, 'price_at_sale' => $p->pivot->price_at_sale]]) }})"
                              class="bg-card p-3 rounded-notion border border-notion-border shadow-sm hover:border-notion-blue/50 hover:shadow-md transition-all cursor-pointer group relative">
                             
-                            <div class="text-sm font-medium mb-2 group-hover:text-notion-blue transition-colors">
+                            <div class="text-sm font-medium mb-2 group-hover:text-notion-blue transition-colors" x-text="dealsData['{{ $deal->id }}']['2001'] || '{{ __('Untitled Deal') }}'">
                                 {{ $deal->getFieldValue(2001) ?? __('Untitled Deal') }}
                             </div>
                             
-                            @if($deal->getFieldValue(2007))
-                                <div class="mb-2 flex items-center gap-1.5 opacity-60">
-                                    <div class="w-4 h-4 rounded-full bg-notion-hover flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                    </div>
-                                    <span class="text-[10px] whitespace-nowrap overflow-hidden text-ellipsis">{{ $users->find($deal->getFieldValue(2007))?->name ?? 'Unknown' }}</span>
+                            <div x-show="dealsData['{{ $deal->id }}']['2007']" class="mb-2 flex items-center gap-1.5 opacity-60">
+                                <div class="w-4 h-4 rounded-full bg-notion-hover flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                                 </div>
-                            @endif
+                                <span class="text-[10px] whitespace-nowrap overflow-hidden text-ellipsis">
+                                    <template x-if="dealsData['{{ $deal->id }}']['2007']">
+                                        <span x-text="users.find(u => u.id == dealsData['{{ $deal->id }}']['2007'])?.name"></span>
+                                    </template>
+                                </span>
+                            </div>
 
                             <div class="flex items-center justify-between mt-auto">
                                 <div class="text-xs font-mono text-green-500/80">
-                                    {{ $currency }}{{ number_format($deal->getFieldValue(2002) ?? 0, 2) }}
+                                    {{ $currency }}<span x-text="parseFloat(dealsData['{{ $deal->id }}']['2002'] || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span>
                                 </div>
                                 <div class="flex -space-x-1">
-                                    <div class="w-5 h-5 rounded-full bg-notion-blue/20 border border-card flex items-center justify-center text-[8px] font-bold text-notion-blue">
+                                    <div class="w-5 h-5 rounded-full bg-notion-blue/20 border border-card flex items-center justify-center text-[8px] font-bold text-notion-blue" x-text="(dealsData['{{ $deal->id }}']['2001'] || 'U').charAt(0)">
                                         {{ mb_substr($deal->getFieldValue(2001) ?? 'U', 0, 1) }}
                                     </div>
                                 </div>
@@ -90,6 +106,118 @@
             </div>
         @endforeach
     </div>
+
+    <!-- Table View (Google Sheets Style) -->
+    <div x-show="viewMode === 'table'" x-cloak class="flex-1 overflow-auto border border-notion-border rounded-xl bg-card">
+        <table class="w-full border-collapse text-xs">
+            <thead class="sticky top-0 z-20 bg-notion-hover border-b border-notion-border">
+                <tr>
+                    <th class="w-[40px] px-2 py-3 border-e border-notion-border"></th>
+                    <th class="px-3 py-3 border-e border-notion-border text-left font-bold text-notion-text-secondary uppercase tracking-widest min-w-[200px]">{{ __('Deal Name') }}</th>
+                    <th class="px-3 py-3 border-e border-notion-border text-left font-bold text-notion-text-secondary uppercase tracking-widest">{{ __('Amount') }}</th>
+                    <th class="px-3 py-3 border-e border-notion-border text-left font-bold text-notion-text-secondary uppercase tracking-widest">{{ __('Stage') }}</th>
+                    @foreach($columns as $col)
+                        @if(!in_array($col->static_id, [2001, 2002, 2006, 2005]))
+                            <th class="px-3 py-3 border-e border-notion-border text-left font-bold text-notion-text-secondary uppercase tracking-widest min-w-[150px]">{{ $col->label_en }}</th>
+                        @endif
+                    @endforeach
+                    <th class="px-3 py-3 text-left font-bold text-notion-text-secondary uppercase tracking-widest">{{ __('Updated') }}</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-notion-border">
+                @foreach($deals->filter(fn($d) => $d->getFieldValue(2005) == $currentPipeline->id)->sortByDesc('updated_at') as $deal)
+                    @php
+                        $rowFields = [];
+                        foreach($columns as $col) {
+                            $rowFields[$col->static_id] = $deal->getFieldValue($col->static_id);
+                        }
+                    @endphp
+                    <tr class="hover:bg-notion-hover transition-colors group">
+                        <td class="px-2 py-2 border-e border-notion-border text-center">
+                            <button @click="initRow({{ $deal->id }}, {{ $deal->products->map(fn($p) => ['id' => $p->id, 'pivot' => ['quantity' => $p->pivot->quantity, 'price_at_sale' => $p->pivot->price_at_sale]]) }})"
+                                    class="p-1.5 rounded bg-notion-blue/10 text-notion-blue hover:bg-notion-blue hover:text-white transition-all opacity-0 group-hover:opacity-100" title="{{ __('Open Card') }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                            </button>
+                        </td>
+                        <td class="px-0 py-0 border-e border-notion-border">
+                            <input type="text" 
+                                   x-model="dealsData['{{ $deal->id }}']['2001']"
+                                   @change="fastSave({{ $deal->id }}, 2001, $event.target.value)"
+                                   class="w-full bg-transparent border-none focus:ring-1 focus:ring-notion-blue px-3 py-2.5 text-xs outline-none focus:bg-card">
+                        </td>
+                        <td class="px-3 py-2 border-e border-notion-border font-mono text-green-500/80">
+                            {{ $currency }}<span x-text="parseFloat(dealsData['{{ $deal->id }}']['2002'] || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span>
+                        </td>
+                        <td class="px-0 py-0 border-e border-notion-border">
+                            <select x-model="dealsData['{{ $deal->id }}']['2006']"
+                                    @change="fastSave({{ $deal->id }}, 2006, $event.target.value)"
+                                    class="w-full bg-transparent border-none focus:ring-1 focus:ring-notion-blue px-2 py-2.5 text-[10px] font-bold outline-none focus:bg-card">
+                                @foreach($currentPipeline->stages as $stage)
+                                    <option value="{{ $stage->id }}">{{ $stage->name }}</option>
+                                @endforeach
+                            </select>
+                        </td>
+                        @foreach($columns as $col)
+                            @if(!in_array($col->static_id, [2001, 2002, 2006, 2005]))
+                                <td class="px-0 py-0 border-e border-notion-border">
+                                    @if($col->static_id == 2007)
+                                        <!-- Searchable User Dropdown -->
+                                        <div x-data="{ open: false, search: '' }" class="relative w-full h-full">
+                                            <button @click="open = !open" 
+                                                    class="w-full h-full text-left px-3 py-2.5 text-xs outline-none focus:ring-1 focus:ring-notion-blue hover:bg-card/50 truncate">
+                                                <span x-text="users.find(u => u.id == dealsData['{{ $deal->id }}']['2007'])?.name || '—'"></span>
+                                            </button>
+                                            <div x-show="open" @click.outside="open = false" class="absolute top-full left-0 w-48 bg-card border border-notion-border shadow-xl z-30 p-1 rounded-notion" x-cloak>
+                                                <input type="text" x-model="search" placeholder="Search..." class="w-full bg-notion-hover border-none rounded p-1.5 text-[10px] mb-1 outline-none">
+                                                <div class="max-h-40 overflow-y-auto custom-scrollbar">
+                                                    @foreach($users as $u)
+                                                        <button @click="fastSave({{ $deal->id }}, 2007, {{ $u->id }}); search = ''; open = false" 
+                                                                x-show="!search || '{{ strtolower($u->name) }}'.includes(search.toLowerCase())"
+                                                                class="w-full text-left px-2 py-1.5 hover:bg-notion-blue/20 rounded text-[10px] transition-colors">
+                                                            {{ $u->name }}
+                                                        </button>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @elseif($col->field_key === 'counterparty_id')
+                                        <!-- Searchable Counterparty Dropdown -->
+                                        <div x-data="{ open: false, search: '' }" class="relative w-full h-full">
+                                            <button @click="open = !open" 
+                                                    class="w-full h-full text-left px-3 py-2.5 text-xs outline-none focus:ring-1 focus:ring-notion-blue hover:bg-card/50 truncate">
+                                                <span x-text="dynamicCounterparties.find(cp => cp.id == dealsData['{{ $deal->id }}']['{{ $col->static_id }}'])?.name || '—'"></span>
+                                            </button>
+                                            <div x-show="open" @click.outside="open = false" class="absolute top-full left-0 w-64 bg-card border border-notion-border shadow-xl z-30 p-1 rounded-notion" x-cloak>
+                                                <input type="text" x-model="search" placeholder="Search..." class="w-full bg-notion-hover border-none rounded p-1.5 text-[10px] mb-1 outline-none">
+                                                <div class="max-h-40 overflow-y-auto custom-scrollbar">
+                                                    @foreach($counterparties as $cp)
+                                                        <button @click="fastSave({{ $deal->id }}, {{ $col->static_id }}, {{ $cp->id }}); search = ''; open = false" 
+                                                                x-show="!search || '{{ strtolower($cp->getFieldValue(1001)) }}'.includes(search.toLowerCase())"
+                                                                class="w-full text-left px-2 py-1.5 hover:bg-notion-blue/20 rounded text-[10px] transition-colors">
+                                                            {{ $cp->getFieldValue(1001) }}
+                                                        </button>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <input type="text" 
+                                               x-model="dealsData['{{ $deal->id }}']['{{ $col->static_id }}']" 
+                                               @change="fastSave({{ $deal->id }}, {{ $col->static_id }}, $event.target.value)"
+                                               class="w-full bg-transparent border-none focus:ring-1 focus:ring-notion-blue px-3 py-2.5 text-xs outline-none focus:bg-card">
+                                    @endif
+                                </td>
+                            @endif
+                        @endforeach
+                        <td class="px-3 py-2 text-notion-text-mono text-[10px]">
+                            {{ $deal->updated_at->diffForHumans() }}
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
     <!-- Side Peek Modal -->
     <div x-show="open" 
          class="fixed inset-y-0 right-0 w-[1200px] bg-card border-inline-start border-notion-border shadow-2xl z-50 flex flex-col"
@@ -246,7 +374,7 @@
                                             <span class="text-[10px] text-notion-text-secondary" x-text="log.created_at"></span>
                                         </div>
                                         <template x-if="log.action === 'comment'">
-                                            <div class="text-sm bg-white/5 p-3 rounded-notion" x-text="log.new_value"></div>
+                                            <div class="text-sm bg-notion-hover/50 p-3 rounded-notion text-notion-text-primary" x-text="log.new_value"></div>
                                         </template>
                                         <template x-if="log.action === 'field_updated'">
                                             <div class="text-[11px] text-notion-text-secondary">
@@ -260,7 +388,7 @@
                             </template>
                         </div>
                         <div class="mt-4 pt-4 border-t border-notion-border flex gap-2">
-                             <input type="text" x-model="newComment" @keydown.enter.prevent="postComment()" class="notion-input flex-1 bg-white/5 text-sm" placeholder="{{ __('Add a comment...') }}">
+                             <input type="text" x-model="newComment" @keydown.enter.prevent="postComment()" class="notion-input flex-1 bg-notion-hover/30 text-sm" placeholder="{{ __('Add a comment...') }}">
                              <button type="button" @click="postComment()" class="bg-notion-blue px-4 rounded-notion text-sm font-bold text-white hover:bg-blue-600 disabled:opacity-50 transition-colors" :disabled="!newComment.trim()">{{ __('Send') }}</button>
                         </div>
                     </div>
@@ -332,11 +460,11 @@
                                     <input type="number" x-model="p.qty" @input="updateAmount()" class="notion-input w-20 text-xs text-center" placeholder="{{ __('Qty') }}">
                                     <div class="w-20 text-inline-end px-2">
                                         <span class="text-[10px] text-notion-text-secondary block leading-none">{{ __('Price') }}</span>
-                                        <span class="text-xs font-mono text-white/60" x-text="parseFloat(p.price || 0).toFixed(2)"></span>
+                                        <span class="text-xs font-mono text-notion-text-secondary" x-text="parseFloat(p.price || 0).toFixed(2)"></span>
                                     </div>
                                     <div class="w-24 text-inline-end pe-2">
                                         <span class="text-[10px] text-notion-text-secondary block leading-none">{{ __('Subtotal') }}</span>
-                                        <span class="text-xs font-mono text-white/90" x-text="( (parseFloat(p.price)||0) * (parseFloat(p.qty)||0) ).toFixed(2)"></span>
+                                        <span class="text-xs font-mono text-notion-text-primary font-bold" x-text="( (parseFloat(p.price)||0) * (parseFloat(p.qty)||0) ).toFixed(2)"></span>
                                     </div>
                                     <button type="button" @click="removeProduct(index); updateAmount();" class="text-red-400 p-1 hover:bg-red-500/10 rounded">×</button>
                                 </div>
@@ -371,12 +499,12 @@
                             </template>
 
                             <template x-for="file in dealFiles" :key="file.id">
-                                <a :href="file.webViewLink" target="_blank" class="group flex items-center gap-4 p-3 rounded-xl border border-notion-border bg-white/[0.02] hover:bg-white/[0.05] hover:border-notion-blue/30 transition-all">
-                                    <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:bg-notion-blue/10 transition-colors">
+                                <a :href="file.webViewLink" target="_blank" class="group flex items-center gap-4 p-3 rounded-xl border border-notion-border bg-notion-hover/30 hover:bg-notion-hover transition-all">
+                                    <div class="w-10 h-10 rounded-lg bg-notion-hover flex items-center justify-center flex-shrink-0 group-hover:bg-notion-blue/10 transition-colors">
                                         <img :src="file.iconLink" class="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity">
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <div class="text-sm font-medium text-white truncate leading-none mb-1.5" x-text="file.name"></div>
+                                        <div class="text-sm font-medium text-notion-text-primary truncate leading-none mb-1.5" x-text="file.name"></div>
                                         <div class="flex items-center gap-3 text-[10px] text-notion-text-secondary font-bold uppercase tracking-widest">
                                             <span x-text="new Date(file.createdTime).toLocaleDateString('uk-UA', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'})"></span>
                                             <template x-if="file.size">
@@ -393,7 +521,7 @@
             </div>
         </div>
     </div>
-    <div x-show="open" @click="open = false" class="fixed inset-0 bg-black/40 z-40" x-cloak></div>
+    <div x-show="open" @click="open = false" class="fixed inset-0 bg-[var(--color-overlay)] z-40" x-cloak></div>
 
     <!-- Automations Sidebar -->
     <div x-show="automationsOpen" 
@@ -406,7 +534,7 @@
          x-transition:leave-end="translate-x-full"
          x-cloak>
         
-        <div class="h-14 border-b border-notion-border ps-6 pe-6 flex items-center justify-between bg-white/[0.02]">
+        <div class="h-14 border-b border-notion-border ps-6 pe-6 flex items-center justify-between bg-notion-hover/20">
             <div class="flex items-center gap-3">
                 <span class="text-sm font-bold tracking-tight">{{ __('Pipeline Automations') }}</span>
             </div>
@@ -417,7 +545,7 @@
 
         <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
             @foreach($currentPipeline->stages as $stage)
-                <div class="bg-white/5 border border-notion-border rounded-xl p-4 space-y-4">
+                <div class="bg-notion-hover/30 border border-notion-border rounded-xl p-4 space-y-4">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full" style="background-color: {{ $stage->color }}"></span>
@@ -429,7 +557,7 @@
                     </div>
                     <div class="space-y-1.5 overflow-y-auto max-h-[300px] pr-1 preview-scrollbar">
                         @forelse($stage->automations as $automation)
-                            <div class="text-[11px] bg-white/[0.03] p-2 rounded flex items-center justify-between group border border-white/5">
+                            <div class="text-[11px] bg-notion-hover/50 p-2 rounded flex items-center justify-between group border border-notion-border">
                                 <div class="flex items-center gap-2 text-notion-text-secondary truncate mr-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-notion-blue flex-shrink-0"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                                     <div class="truncate">
@@ -440,12 +568,12 @@
                                                     $tPipe = $pipelines->find($automation->action_payload['target_pipeline_id'] ?? null);
                                                     $tStage = $tPipe?->stages->find($automation->action_payload['target_stage_id'] ?? null);
                                                 @endphp
-                                                <span class="font-bold text-white">{{ $tPipe?->name ?? '?' }} ({{ $tStage?->name ?? '?' }})</span>
+                                                <span class="font-bold text-notion-text-primary">{{ $tPipe?->name ?? '?' }} ({{ $tStage?->name ?? '?' }})</span>
                                             </span>
                                         @elseif($automation->action_type === 'send_webhook')
                                             <span>
                                                 {{ __('Webhook to') }}: 
-                                                <span class="font-bold text-white truncate inline-block max-w-[150px] align-bottom" title="{{ $automation->action_payload['url'] ?? '' }}">
+                                                <span class="font-bold text-notion-text-primary truncate inline-block max-w-[150px] align-bottom" title="{{ $automation->action_payload['url'] ?? '' }}">
                                                     {{ $automation->action_payload['url'] ?? '?' }}
                                                 </span>
                                             </span>
@@ -462,7 +590,7 @@
                                 </div>
                             </div>
                         @empty
-                            <div class="text-[11px] text-notion-text-secondary italic px-2 py-4 text-center bg-white/[0.02] rounded border border-dashed border-white/5">
+                            <div class="text-[11px] text-notion-text-secondary italic px-2 py-4 text-center bg-notion-hover/20 rounded border border-dashed border-notion-border">
                                 {{ __('No automations yet') }}
                             </div>
                         @endforelse
@@ -606,26 +734,52 @@
     </div>
 </div>
 <style>
-    /* Агресивне виправлення для темної теми та системних меню браузера */
+    /* Theme-aware dropdowns and inputs */
     select.notion-input, select.notion-input option {
-        background-color: #252525 !important;
-        color: rgba(255, 255, 255, 0.9) !important;
+        background-color: var(--color-card) !important;
+        color: var(--color-notion-text-primary) !important;
     }
     select.notion-input:focus, select.notion-input:active {
-        background-color: #252525 !important;
-        color: white !important;
+        background-color: var(--color-card) !important;
+        color: var(--color-notion-text-primary) !important;
         outline: none !important;
-        box-shadow: 0 0 0 1px rgba(35, 131, 226, 0.5) !important;
+        box-shadow: 0 0 0 1px var(--color-notion-blue) !important;
     }
-    /* Видаляємо прозорість, яка викликає проблеми з видимістю тексту */
-    .notion-input.bg-transparent {
-        background-color: #252525 !important;
+    .notion-input {
+        background-color: var(--color-card) !important;
+        color: var(--color-notion-text-primary) !important;
+        border: 1px solid var(--color-notion-border) !important;
     }
 </style>
 <script>
 function dealBoard() {
     return {
+        viewMode: localStorage.getItem('viewMode') || 'board',
         open: false,
+        saving: {},
+        dealsData: {!! json_encode($deals->mapWithKeys(function($d) use ($columns) {
+            $f = [];
+            foreach($columns as $col) { $f[$col->static_id] = $d->getFieldValue($col->static_id); }
+            return [$d->id => $f];
+        })) !!},
+        async fastSave(dealId, fieldId, value) {
+            const key = `${dealId}-${fieldId}`;
+            this.saving[key] = true;
+            
+            // Миттєве оновлення локального сховища
+            if (this.dealsData[dealId]) {
+                this.dealsData[dealId][fieldId] = value;
+            }
+
+            try {
+                const res = await fetch(`/deals/${dealId}/fast-update`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify({ field_id: fieldId, value: value })
+                });
+            } catch (e) { console.error('Fast save failed', e); }
+            setTimeout(() => { delete this.saving[key]; }, 500);
+        },
         quickCP: false,
         quickProd: false,
         newCounterparties: [],
@@ -653,6 +807,7 @@ function dealBoard() {
         automationForm: { action_type: 'duplicate_deal', target_pipeline: '', target_stage: '', target_user_id: '', url: '', id: null },
         automationEditMode: false,
         allPipelines: @json($pipelines),
+        users: @json($users),
         editMode: false,
         currentId: null,
         fields: {},
@@ -662,10 +817,10 @@ function dealBoard() {
         dealFiles: [],
         filesLoading: false,
         activeTab: 'comments',
-        initRow(id, rowFields, products) {
+        initRow(id, products) {
             this.editMode = true;
             this.currentId = id;
-            this.fields = rowFields;
+            this.fields = this.dealsData[id] || {};
             this.newComment = '';
             this.dealProducts = products.map(p => {
                 return {

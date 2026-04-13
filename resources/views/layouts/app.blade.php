@@ -1,6 +1,13 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
+    <script>
+        // Apply theme immediately to prevent flicker
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Bojumbo CRM') }}</title>
@@ -66,7 +73,7 @@
                 <p class="text-[10px] uppercase tracking-wider text-notion-text-secondary font-bold px-3">Admin</p>
             </div>
                 <div class="space-y-0.5">
-                    <a href="{{ route('admin.settings.index') }}" class="flex items-center gap-2 px-3 py-1.5 rounded-notion text-sm hover:bg-notion-hover {{ request()->routeIs('admin.*') ? 'bg-notion-hover text-white' : 'text-notion-text-secondary' }}">
+                    <a href="{{ route('admin.settings.index') }}" class="flex items-center gap-2 px-3 py-1.5 rounded-notion text-sm hover:bg-notion-hover {{ request()->routeIs('admin.*') ? 'bg-notion-hover text-notion-text-primary font-bold' : 'text-notion-text-secondary' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                         {{ __('Settings') }}
                     </a>
@@ -144,7 +151,7 @@
                              x-transition:leave="transition ease-in duration-300"
                              x-transition:leave-start="opacity-100 translate-y-0"
                              x-transition:leave-end="opacity-0 translate-y-4"
-                             class="fixed bottom-8 right-8 z-[100] flex items-center gap-3 bg-notion-blue text-white px-4 py-3 rounded-notion shadow-2xl border border-white/20 animate-bounce-subtle">
+                             class="fixed bottom-8 right-8 z-[100] flex items-center gap-3 bg-notion-blue text-white px-4 py-3 rounded-notion shadow-2xl border border-notion-blue/20 animate-bounce-subtle">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                             <span class="text-sm font-medium">{{ session('automation_success') }}</span>
                             <button @click="show = false" class="ml-2 hover:opacity-70 transition-opacity">
@@ -170,13 +177,13 @@
             background: transparent;
         }
         .preview-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--color-notion-hover);
             border: 2px solid transparent;
             background-clip: padding-box;
             border-radius: 10px;
         }
         .preview-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--color-notion-border);
             border: 2px solid transparent;
             background-clip: padding-box;
         }

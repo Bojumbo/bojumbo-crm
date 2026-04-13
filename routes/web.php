@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/', [App\Http\Controllers\DealController::class , 'store'])->name('store');
             Route::patch('/{deal}', [App\Http\Controllers\DealController::class , 'update'])->name('update');
             Route::patch('/{deal}/move', [App\Http\Controllers\DealController::class , 'move'])->name('move');
+            Route::patch('/{deal}/fast-update', [App\Http\Controllers\DealController::class , 'fastUpdate'])->name('fast-update');
             Route::delete('/{deal}', [App\Http\Controllers\DealController::class , 'destroy'])->name('destroy');
         }
         );
@@ -75,7 +76,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/statistics', [App\Http\Controllers\StatisticsController::class , 'index'])->name('statistics.index');
         Route::get('/activity', [App\Http\Controllers\ActivityController::class , 'index'])->name('activity.index');
         Route::post('/activity', [App\Http\Controllers\ActivityController::class , 'store'])->name('activity.store');
-        Route::post('/products/quick', [ProductController::class, 'quickStore'])->name('products.quick');
+        Route::post('/products/quick', [App\Http\Controllers\ProductController::class, 'quickStore'])->name('products.quick');
         Route::post('/logout', [AuthController::class , 'logout'])->name('logout');
 
         // Google API & Docs

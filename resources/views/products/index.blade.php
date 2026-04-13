@@ -58,8 +58,8 @@
                             @if($photo)
                                 <img src="{{ $photo }}" class="w-8 h-8 rounded border border-notion-border object-cover mx-auto">
                             @else
-                                <div class="w-8 h-8 rounded border border-notion-border bg-white/5 flex items-center justify-center mx-auto">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-30"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                                <div class="w-8 h-8 rounded border border-notion-border bg-notion-hover flex items-center justify-center mx-auto">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-notion-text-mono"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                                 </div>
                             @endif
                         </td>
@@ -73,9 +73,9 @@
                                 @elseif($column->field_key === 'price' || $column->static_id == 3003)
                                     <span class="font-mono text-green-500/80">{{ $currency }}{{ number_format($val ?? 0, 2) }}</span>
                                 @elseif($column->field_key === 'sku')
-                                    <span class="bg-white/5 px-1.5 py-0.5 rounded font-mono text-xs text-notion-text-secondary">{{ $val }}</span>
+                                    <span class="bg-notion-hover px-1.5 py-0.5 rounded font-mono text-xs text-notion-text-secondary">{{ $val }}</span>
                                 @else
-                                    <span class="text-notion-text-primary/70">{{ Str::limit($val, 40) }}</span>
+                                    <span class="text-notion-text-secondary">{{ Str::limit($val, 40) }}</span>
                                 @endif
                             </td>
                         @endforeach
@@ -143,6 +143,6 @@
             </div>
         </form>
     </div>
-    <div x-show="open" @click="open = false" class="fixed inset-0 bg-black/40 z-40" x-cloak></div>
+    <div x-show="open" @click="open = false" class="fixed inset-0 bg-[var(--color-overlay)] z-40" x-cloak></div>
 </div>
 @endsection

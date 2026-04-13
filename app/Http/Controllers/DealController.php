@@ -63,6 +63,20 @@ class DealController extends Controller
         
         return redirect()->back();
     }
+    public function fastUpdate(Request $request, Deal $deal)
+    {
+        $fieldId = (int)$request->input('field_id');
+        $value = $request->input('value');
+        
+        $deal->saveDynamicFields([$fieldId => $value]);
+        
+        // Якщо змінено стадію (Static ID 2006), запускаємо автоматизації
+        if ($fieldId === 2006) {
+            \App\Services\AutomationService::handleStageChange($deal, (int)$value);
+        }
+        
+        return response()->json(['success' => true]);
+    }
     public function destroy(Deal $deal)
     {
         ActivityLogService::logAction($deal, 'deleted');

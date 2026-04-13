@@ -1,22 +1,42 @@
 @import "tailwindcss";
 
-@theme {
-    /* Notion Colors (Dark Mode Default) */
+:root {
+    /* Google Sheets Colors (Light Mode) */
+    --color-canvas: #f8f9fa;
+    --color-card: #ffffff;
+    --color-notion-blue: #1a73e8;
+    --color-notion-text-primary: #3c4043;
+    --color-notion-text-secondary: #5f6368;
+    --color-notion-text-mono: #70757a;
+    --color-notion-border: #dadce0;
+    --color-notion-hover: #f1f3f4;
+    --color-overlay: rgba(0, 0, 0, 0.4);
+    --radius-notion: 4px;
+}
+
+.dark {
+    /* Notion Colors (Dark Mode) */
     --color-canvas: #191919;
     --color-card: #202020;
     --color-notion-blue: #2383E2;
-
-    /* Text Overlays */
     --color-notion-text-primary: rgba(255, 255, 255, 0.9);
     --color-notion-text-secondary: rgba(255, 255, 255, 0.45);
     --color-notion-text-mono: rgba(255, 255, 255, 0.4);
-
-    /* Border & Hover */
     --color-notion-border: rgba(255, 255, 255, 0.09);
     --color-notion-hover: rgba(255, 255, 255, 0.05);
+    --color-overlay: rgba(0, 0, 0, 0.7);
+}
 
-    /* Radius */
-    --radius-notion: 4px;
+@theme {
+    --color-canvas: var(--color-canvas);
+    --color-card: var(--color-card);
+    --color-notion-blue: var(--color-notion-blue);
+    --color-notion-text-primary: var(--color-notion-text-primary);
+    --color-notion-text-secondary: var(--color-notion-text-secondary);
+    --color-notion-text-mono: var(--color-notion-text-mono);
+    --color-notion-border: var(--color-notion-border);
+    --color-notion-hover: var(--color-notion-hover);
+    --radius-notion: var(--radius-notion);
 
     /* Fonts */
     --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -26,13 +46,12 @@
 @layer base {
     html {
         -webkit-tap-highlight-color: transparent;
-        color-scheme: dark;
+        color-scheme: light dark;
     }
 
     body {
         @apply bg-canvas text-notion-text-primary font-sans antialiased;
         font-size: 14px;
-        /* Notion standard */
     }
 
     select,
@@ -53,12 +72,12 @@
     }
 
     ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--color-notion-border);
         border-radius: 4px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: var(--color-notion-text-secondary);
     }
 }
 

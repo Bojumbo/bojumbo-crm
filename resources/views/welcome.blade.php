@@ -34,9 +34,9 @@
                         <tr class="hover:bg-notion-hover/50 transition-colors group">
                             <td class="font-mono text-notion-blue text-sm">{{ $field->static_id }}</td>
                             <td class="text-notion-text-secondary">{{ ucfirst($field->entity) }}</td>
-                            <td><code class="bg-white/5 px-1.5 py-0.5 rounded text-xs">{{ $field->field_key }}</code></td>
+                            <td><code class="bg-notion-hover px-1.5 py-0.5 rounded text-xs">{{ $field->field_key }}</code></td>
                             <td>
-                                <span class="text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/5">
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-notion-hover border border-notion-border">
                                     {{ $field->field_type }}
                                 </span>
                             </td>

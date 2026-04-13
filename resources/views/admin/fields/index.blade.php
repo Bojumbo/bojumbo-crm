@@ -4,21 +4,21 @@
 <div class="space-y-6">
     <div class="flex items-center justify-between">
         <div>
-            <h3 class="font-bold text-lg text-white">{{ __('Data Structure & Fields') }}</h3>
+            <h3 class="font-bold text-lg text-notion-text-primary">{{ __('Data Structure & Fields') }}</h3>
             <p class="text-[12px] text-notion-text-secondary">{{ __('Define properties and data types for different entities.') }}</p>
         </div>
         
         <div class="flex bg-card border border-notion-border rounded-notion p-1">
-            <a href="?entity=deal" class="px-4 py-1.5 rounded-notion text-sm transition-all {{ $entity === 'deal' ? 'bg-white/10 text-white font-medium' : 'text-notion-text-secondary hover:text-white' }}">{{ __('Deals') }}</a>
-            <a href="?entity=counterparty" class="px-4 py-1.5 rounded-notion text-sm transition-all {{ $entity === 'counterparty' ? 'bg-white/10 text-white font-medium' : 'text-notion-text-secondary hover:text-white' }}">{{ __('Counterparties') }}</a>
-            <a href="?entity=product" class="px-4 py-1.5 rounded-notion text-sm transition-all {{ $entity === 'product' ? 'bg-white/10 text-white font-medium' : 'text-notion-text-secondary hover:text-white' }}">{{ __('Products') }}</a>
+            <a href="?entity=deal" class="px-4 py-1.5 rounded-notion text-sm transition-all {{ $entity === 'deal' ? 'bg-notion-blue/10 text-notion-blue font-bold' : 'text-notion-text-secondary hover:text-notion-text-primary' }}">{{ __('Deals') }}</a>
+            <a href="?entity=counterparty" class="px-4 py-1.5 rounded-notion text-sm transition-all {{ $entity === 'counterparty' ? 'bg-notion-blue/10 text-notion-blue font-bold' : 'text-notion-text-secondary hover:text-notion-text-primary' }}">{{ __('Counterparties') }}</a>
+            <a href="?entity=product" class="px-4 py-1.5 rounded-notion text-sm transition-all {{ $entity === 'product' ? 'bg-notion-blue/10 text-notion-blue font-bold' : 'text-notion-text-secondary hover:text-notion-text-primary' }}">{{ __('Products') }}</a>
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- New Field Form -->
         <div class="bg-card border border-notion-border rounded-notion p-6 self-start space-y-6">
-            <h3 class="font-bold text-md text-white">{{ __('Add New Field') }}</h3>
+            <h3 class="font-bold text-md text-notion-text-primary">{{ __('Add New Field') }}</h3>
             
             <form action="{{ route('admin.fields.store') }}" method="POST" class="space-y-4">
                 @csrf
@@ -54,7 +54,7 @@
         <div class="lg:col-span-2 space-y-4">
             <div class="bg-card border border-notion-border rounded-notion overflow-hidden shadow-sm">
                 <table class="w-full text-[13px] text-inline-start">
-                    <thead class="bg-white/5 border-b border-notion-border text-notion-text-secondary">
+                    <thead class="bg-notion-hover/20 border-b border-notion-border text-notion-text-secondary">
                         <tr>
                             <th class="ps-4 pe-4 py-3 font-medium w-16">ID</th>
                             <th class="ps-4 pe-4 py-3 font-medium">{{ __('Label') }}</th>
@@ -66,14 +66,14 @@
                     </thead>
                     <tbody class="divide-y divide-notion-border/50">
                         @foreach($fields as $field)
-                            <tr class="hover:bg-white/[0.02] group transition-colors">
+                            <tr class="hover:bg-notion-hover transition-colors group">
                                 <td class="ps-4 pe-4 py-3 font-mono text-[11px] text-notion-text-secondary">{{ $field->static_id }}</td>
                                 <td class="ps-4 pe-4 py-3">
-                                    <div class="font-medium text-white">{{ $field->label_en }}</div>
+                                    <div class="font-medium text-notion-text-primary">{{ $field->label_en }}</div>
                                     <div class="text-[10px] text-notion-text-secondary">{{ $field->label_uk }}</div>
                                 </td>
                                 <td class="ps-4 pe-4 py-3">
-                                    <span class="px-2 py-0.5 rounded bg-white/5 border border-notion-border text-[10px] uppercase font-bold tracking-tight opacity-70">
+                                    <span class="px-2 py-0.5 rounded bg-notion-hover border border-notion-border text-[10px] uppercase font-bold tracking-tight opacity-70">
                                         {{ $field->field_type }}
                                     </span>
                                 </td>

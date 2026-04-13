@@ -72,7 +72,7 @@
                     @endphp
                     <tr class="hover:bg-notion-hover transition-colors group">
                         <td class="text-center">
-                             <span class="text-notion-text-secondary opacity-30 group-hover:opacity-100 italic text-[10px]">#{{ $item->id }}</span>
+                             <span class="text-notion-text-mono italic text-[10px]">#{{ $item->id }}</span>
                         </td>
                         @foreach($columns as $column)
                             <td class="text-sm">
@@ -96,7 +96,7 @@
                                         {{ ucfirst($val) }}
                                     </span>
                                 @else
-                                    <span class="text-notion-text-primary/80">{{ $val }}</span>
+                                    <span class="text-notion-text-secondary">{{ $val }}</span>
                                 @endif
                             </td>
                         @endforeach
@@ -187,6 +187,6 @@
         </form>
     </div>
 
-    <div x-show="open" @click="open = false" class="fixed inset-0 bg-black/40 z-40" x-cloak></div>
+    <div x-show="open" @click="open = false" class="fixed inset-0 bg-[var(--color-overlay)] z-40" x-cloak></div>
 </div>
 @endsection

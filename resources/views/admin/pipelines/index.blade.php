@@ -38,7 +38,7 @@
 }" class="space-y-6">
     
     <div class="flex items-center justify-between">
-        <h3 class="font-bold text-lg text-white">{{ __('Pipelines & Sales Cycles') }}</h3>
+        <h3 class="font-bold text-lg text-notion-text-primary">{{ __('Pipelines & Sales Cycles') }}</h3>
         <button @click="openCreate()" class="flex items-center gap-1.5 px-3 py-1.5 bg-notion-blue text-white rounded-notion text-sm font-medium hover:bg-blue-600 transition-colors shadow-sm">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
             {{ __('New Pipeline') }}
@@ -49,10 +49,10 @@
     <div class="grid grid-cols-1 gap-6">
         @foreach($pipelines as $pipeline)
             <div class="bg-card border border-notion-border rounded-notion overflow-hidden shadow-sm">
-                <div class="p-4 border-b border-notion-border flex items-center justify-between bg-white/5">
-                    <h3 class="font-bold text-md">{{ $pipeline->name }}</h3>
+                <div class="p-4 border-b border-notion-border flex items-center justify-between bg-notion-hover/20">
+                    <h3 class="font-bold text-md text-notion-text-primary">{{ $pipeline->name }}</h3>
                     <div class="flex items-center gap-2">
-                        <button type="button" @click="openEdit({{ $pipeline->id }}, '{{ addslashes($pipeline->name) }}', {{ $pipeline->stages->toJson() }})" class="text-notion-text-secondary hover:text-white p-1 rounded transition-colors" title="{{ __('Edit Pipeline') }}">
+                        <button type="button" @click="openEdit({{ $pipeline->id }}, '{{ addslashes($pipeline->name) }}', {{ $pipeline->stages->toJson() }})" class="text-notion-text-secondary hover:text-notion-text-primary p-1 rounded transition-colors" title="{{ __('Edit Pipeline') }}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
                         </button>
                         <form action="{{ route('admin.pipelines.destroy', $pipeline) }}" method="POST">
@@ -63,7 +63,7 @@
                         </form>
                     </div>
                 </div>
-                <div class="p-4 bg-white/[0.01]">
+                <div class="p-4 bg-notion-hover/10">
                     <div class="flex flex-wrap gap-3 items-center">
                         @foreach($pipeline->stages as $stage)
                             <div class="flex items-center gap-2 px-2 py-1 rounded border border-notion-border text-xs font-bold transition-all hover:scale-105" style="background-color: {{ $stage->color }}40; color: {{ $stage->color }}; border-color: {{ $stage->color }}80;">
@@ -88,7 +88,7 @@
 
     <!-- Create Pipeline Sidebar -->
     <div x-show="open" class="fixed inset-y-0 right-0 w-[550px] bg-card border-inline-start border-notion-border shadow-2xl z-50 flex flex-col" x-cloak>
-        <div class="h-12 border-b border-notion-border ps-4 pe-4 flex items-center justify-between bg-white/[0.02]">
+        <div class="h-12 border-b border-notion-border ps-4 pe-4 flex items-center justify-between bg-notion-hover/20">
             <span class="text-sm font-bold tracking-tight" x-text="editMode ? '{{ __('Edit Pipeline') }}' : '{{ __('New Pipeline') }}'"></span>
             <button @click="open = false" class="p-1.5 hover:bg-notion-hover rounded transition-colors text-notion-text-secondary">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -114,7 +114,7 @@
                     
                     <div class="space-y-3">
                         <template x-for="(stage, index) in stages" :key="index">
-                            <div class="grid grid-cols-[20px_1fr_40px_100px_30px] items-center gap-3 group bg-white/[0.01] p-1 rounded hover:bg-white/[0.03] transition-all">
+                            <div class="grid grid-cols-[20px_1fr_40px_100px_30px] items-center gap-3 group bg-notion-hover/10 p-1 rounded hover:bg-notion-hover/30 transition-all">
                                 <template x-if="stage.id">
                                     <input type="hidden" :name="'stage_ids[' + index + ']'" :value="stage.id">
                                 </template>
@@ -127,7 +127,7 @@
                                     <label class="relative flex items-center cursor-pointer group/win" title="{{ __('Mark as Won') }}">
                                         <input type="checkbox" :name="'is_won[' + index + ']'" value="1" x-model="stage.is_won" @change="if(stage.is_won) stage.is_lost = false" class="hidden">
                                         <div class="w-7 h-7 rounded border border-notion-border flex items-center justify-center transition-all"
-                                             :class="stage.is_won ? 'bg-green-500/20 border-green-500 text-green-500 shadow-lg shadow-green-500/10' : 'bg-white/5 hover:border-green-500/50 text-notion-text-secondary'">
+                                             :class="stage.is_won ? 'bg-green-500/20 border-green-500 text-green-500 shadow-lg shadow-green-500/10' : 'bg-notion-hover text-notion-text-secondary hover:border-notion-blue/50'">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
                                         </div>
                                     </label>
@@ -135,7 +135,7 @@
                                     <label class="relative flex items-center cursor-pointer group/loss" title="{{ __('Mark as Lost') }}">
                                         <input type="checkbox" :name="'is_lost[' + index + ']'" value="1" x-model="stage.is_lost" @change="if(stage.is_lost) stage.is_won = false" class="hidden">
                                         <div class="w-7 h-7 rounded border border-notion-border flex items-center justify-center transition-all"
-                                             :class="stage.is_lost ? 'bg-red-500/20 border-red-500 text-red-500 shadow-lg shadow-red-500/10' : 'bg-white/5 hover:border-red-500/50 text-notion-text-secondary'">
+                                             :class="stage.is_lost ? 'bg-red-500/20 border-red-500 text-red-500 shadow-lg shadow-red-500/10' : 'bg-notion-hover text-notion-text-secondary hover:border-red-500/50'">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                                         </div>
                                     </label>
@@ -157,6 +157,6 @@
             </div>
         </form>
     </div>
-    <div x-show="open" @click="open = false" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-all" x-cloak></div>
+    <div x-show="open" @click="open = false" class="fixed inset-0 bg-[var(--color-overlay)] backdrop-blur-sm z-40 transition-all" x-cloak></div>
 </div>
 @endsection
